@@ -1,6 +1,6 @@
 package com.rpereira.mece;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 public class Main {
 
@@ -11,16 +11,12 @@ public class Main {
 	 *            : command line arguments
 	 */
 	public static void main(String[] args) {
-		HashMap<String, String> cookies;
-		if (args.length == 0) {
-			cookies = MECE.extract();
-			for (String key : cookies.keySet()) {
-				System.out.println(key + " = " + cookies.get(key));
-			}
-		} else {
-			for (String arg : args) {
-				System.out.println(arg);
-			}
+		ArrayList<Cookie> cookies = (args.length == 0) ? MECE.extract() : MECE.extract(args);
+		for (Cookie cookie : cookies) {
+			System.out.println(cookie.name);
+			System.out.println(cookie.referer);
+			System.out.println(cookie.value);
+			System.out.println("------------------------------------------");
 		}
 	}
 }

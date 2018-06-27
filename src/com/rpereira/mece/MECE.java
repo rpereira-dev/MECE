@@ -1,8 +1,12 @@
 package com.rpereira.mece;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 /**
  * A one-file-library which makes microsoft edge cookie extraction easier
@@ -13,10 +17,13 @@ import java.util.HashMap;
 public class MECE {
 
 	/**
-	 * @return a hashmap, keys are the cookie's name, value is their value
+	 * Extract cookie from the user folder:
+	 * "/AppData/Local/Packages/Microsoft.MicrosoftEdge_8wekyb3d8bbwe/AC/"
+	 * 
+	 * @return a list of cookie
 	 */
-	public static HashMap<String, String> extract() {
-		HashMap<String, String> cookies = new HashMap<String, String>();
+	public static ArrayList<Cookie> extract() {
+		ArrayList<Cookie> cookies = new ArrayList<Cookie>();
 		String dirpath = "C:/Users/" + System.getProperty("user.name")
 				+ "/AppData/Local/Packages/Microsoft.MicrosoftEdge_8wekyb3d8bbwe/AC/";
 		extract(dirpath.replace('/', File.separatorChar), cookies);
@@ -28,10 +35,10 @@ public class MECE {
 	 * @param folders
 	 *            : list of folder path on which the program should search for
 	 *            cookies
-	 * @return a hashmap, keys are the cookie's name, value is their value
+	 * @return a list of cookie
 	 */
-	public static HashMap<String, String> extract(ArrayList<String> dirpaths) {
-		HashMap<String, String> cookies = new HashMap<String, String>();
+	public static ArrayList<Cookie> extract(String... dirpaths) {
+		ArrayList<Cookie> cookies = new ArrayList<Cookie>();
 		for (String dirpath : dirpaths) {
 			extract(dirpath, cookies);
 		}
@@ -43,21 +50,21 @@ public class MECE {
 	 * 
 	 * @param dirpath
 	 * @param cookies
-	 * @return a hashmap, keys are the cookie's name, value is their value
+	 * @return a list of cookie
 	 */
-	public static HashMap<String, String> extract(String dirpath) {
-		HashMap<String, String> cookies = new HashMap<String, String>();
+	public static ArrayList<Cookie> extract(String dirpath) {
+		ArrayList<Cookie> cookies = new ArrayList<Cookie>();
 		extract(new File(dirpath), cookies);
 		return (cookies);
 	}
 
 	/**
-	 * Extract cookies from 'dirpath' and stores them into the 'cookies' HashMap
+	 * Extract cookies from 'dirpath' and stores them into the 'cookies' list
 	 * 
 	 * @param dirpath
 	 * @param cookies
 	 */
-	public static void extract(String dirpath, HashMap<String, String> cookies) {
+	public static void extract(String dirpath, List<Cookie> cookies) {
 		extract(new File(dirpath), cookies);
 	}
 
@@ -71,7 +78,8 @@ public class MECE {
 	 * @param cookies
 	 *            : the map to which cookies are stored
 	 */
-	private static void extract(File f, HashMap<String, String> cookies) {
+	@SuppressWarnings("resource")
+	private static void extract(File f, List<Cookie> cookies) {
 		if (!f.exists() || !f.canRead()) {
 			System.out.println("Couldn't access directory " + f.getAbsolutePath());
 			return;
@@ -83,6 +91,24 @@ public class MECE {
 			}
 		} else if (f.isFile() && f.getName().endsWith(".cookie")) {
 			System.out.println("Find a cookie, yummy : " + f.getAbsolutePath());
+			try {
+				BufferedReader br = new BufferedReader(new FileReader(f));
+				String line;
+				while ((line = br.readLine()) != null) {
+					String name = br.readLine();
+					String value = br.readLine();
+					String referer = br.readLine();
+					Cookie cookie = new Cookie(name, value, referer);
+					cookies.add(cookie);
+
+					while ((line = br.readLine()) != null && !line.equals("*"))
+						;
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
