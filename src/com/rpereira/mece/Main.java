@@ -12,11 +12,10 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		ArrayList<Cookie> cookies = (args.length == 0) ? MECE.extract() : MECE.extract(args);
+		
+		System.out.println("name;value;referer");
 		for (Cookie cookie : cookies) {
-			System.out.println(cookie.name);
-			System.out.println(cookie.referer);
-			System.out.println(cookie.value);
-			System.out.println("------------------------------------------");
+			System.out.println(cookie.name + ";" + cookie.value + ";" + cookie.referer);
 		}
 	}
 }

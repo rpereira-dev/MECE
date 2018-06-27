@@ -90,12 +90,11 @@ public class MECE {
 				extract(child, cookies);
 			}
 		} else if (f.isFile() && f.getName().endsWith(".cookie")) {
-			System.out.println("Find a cookie, yummy : " + f.getAbsolutePath());
 			try {
 				BufferedReader br = new BufferedReader(new FileReader(f));
 				String line;
 				while ((line = br.readLine()) != null) {
-					String name = br.readLine();
+					String name = line;
 					String value = br.readLine();
 					String referer = br.readLine();
 					Cookie cookie = new Cookie(name, value, referer);
